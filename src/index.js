@@ -36,26 +36,6 @@ class Board extends React.Component {
       board.push(<div key={"row-" + j.toString()} className="board-row">{row}</div>);
     }
     return <div>{board}</div>;
-
-    // return (
-    //   <div>
-    //     <div className="board-row">
-    //       {this.renderSquare(0)}
-    //       {this.renderSquare(1)}
-    //       {this.renderSquare(2)}
-    //     </div>
-    //     <div className="board-row">
-    //       {this.renderSquare(3)}
-    //       {this.renderSquare(4)}
-    //       {this.renderSquare(5)}
-    //     </div>
-    //     <div className="board-row">
-    //       {this.renderSquare(6)}
-    //       {this.renderSquare(7)}
-    //       {this.renderSquare(8)}
-    //     </div>
-    //   </div>
-    // );
   }
 }
 
@@ -68,6 +48,7 @@ class Game extends React.Component {
       }],
       stepNumber: 0,
       xIsNext: true,
+      sortNatural: true,
     };
   }
 
@@ -91,10 +72,18 @@ class Game extends React.Component {
   }
 
   jumpTo(step) {
+    console.log('this: ', this);
     this.setState({
       stepNumber: step,
       xIsNext: (step % 2) === 0,
-    })
+    });
+  }
+
+  toggleOrder() {
+    const sortNatural = !this.state.sortNatural;
+    this.setState({
+      sortNatural: sortNatural,
+    });
   }
 
   render() {
@@ -113,7 +102,7 @@ class Game extends React.Component {
       'row 3, col 3'
     ];
 
-    const moves = history.map((step, move) => {
+    let moves = history.map((step, move) => {
       let position
       if (move) {
         const prev = history[move - 1].squares;
@@ -132,7 +121,7 @@ class Game extends React.Component {
         'Go to start of game';
 
       if (move === this.state.stepNumber) {
-        desc = (<b>{desc}</b>);
+        desc = <b>{desc}</b>;
       }
 
       return (
@@ -142,6 +131,14 @@ class Game extends React.Component {
       );
 
     });
+
+    if (!this.state.sortNatural) {
+      let reversedMoves = [];
+      for (let i = moves.length - 1; i > -1; i--) {
+        reversedMoves.push(moves[i]);
+      }
+      moves = reversedMoves;
+    }
 
     let status;
     if (winner) {
@@ -160,6 +157,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <button onClick={ () => this.toggleOrder() }>Toggle order of moves</button>
           <ol>{moves}</ol>
         </div>
       </div>
